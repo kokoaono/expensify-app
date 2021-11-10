@@ -1,4 +1,5 @@
 import { createStore, combineReducers } from 'redux';
+import { experiments } from 'webpack';
 // import uuid from 'uuid';
 
 //Add_Expense
@@ -76,8 +77,10 @@ const expensesReducer = (state = expensesReducerDefaultState, action) => {
     case 'EDIT_EXPENSE':
       return state.map((expense) => {
         if(expense.id === action.id) {
-          ...expense,
-          ...action.updates
+          return {
+            ...expense,
+            ...action.update
+          };
        } else {
           return expense;
         }
@@ -127,8 +130,18 @@ const filtersReducer = (state = filtersReducerDefaultState, action) => {
   }
 };
 
-const getVisibleExpenses = (expenses, filters) => {
-return expenses;
+const getVisibleExpenses = (expenses, {text, sortBy, startDate, endDate}) => {
+return expenses.filter((expense) => {
+  const startDateMatch = typeof startDate !== 'number' || expense.createdAt >= startDate;
+  const endDateMatch = typeof endDate !== 'number' || expense.createdAt <= endDate;
+  const textMatch = expense.description.toLowerCase().includes(text.toLowerCase());
+
+  return startDateMatch && endDateMatch && textMatch;
+}).sort((a, b) => {
+  if(sortBy === 'date'){
+    return a.createdAt < b.createdAt ? 1 : -1;
+  }
+})
 };
 
 // Store Creation
@@ -141,23 +154,23 @@ const store = createStore(
 
 store.subscribe(() => {
   const state = store.getState();
-  const getVisibleExpenses =getVisibleExpenses(state.expenses, state.filters);
-  console.log(getVisibleExpenses);
+  const visibleExpenses = getVisibleExpenses(state.expenses, state.filters);
+  console.log(visibleExpenses);
 });
 
-const expenseOne = store.dispatch(addExpense({description:'Rent', amount: 100}));
-const expenseTwo = store.dispatch(addExpense({description:'Food', amount: 200}));
+const expenseOne = store.dispatch(addExpense({description:'Rent', amount: 100, createdAt: 100}));
+const expenseTwo = store.dispatch(addExpense({description:'Food', amount: 200, createdAt: -1000}));
 
 // store.dispatch(removeExpense({ id:expenseOne.expense.id }));
 // store.dispatch(editExpense(expenseTwo.expense.id, { amount: 5 }));
-// store.dispatch(setTextFilter('rent'));
+store.dispatch(setTextFilter('rent'));
 // store.dispatch(setTextFilter(''));
 // store.dispatch(sortByAmount());
 // store.dispatch(sortByDate());
 
-store.dispatch(setStartDate(125));
-store.dispatch(setStartDate());
-store.dispatch(setEndDate(1250));
+// store.dispatch(setStartDate(125));
+// store.dispatch(setStartDate());
+// store.dispatch(setEndDate(1250));
 
 const demoState = {
   expenses: [{
