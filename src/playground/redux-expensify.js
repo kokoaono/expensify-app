@@ -1,6 +1,5 @@
 import { createStore, combineReducers } from 'redux';
-import { experiments } from 'webpack';
-// import uuid from 'uuid';
+import uuid from 'uuid';
 
 //Add_Expense
 const addExpense = (
@@ -13,7 +12,7 @@ const addExpense = (
 ) => ({
   type: 'ADD_EXPENSE',
   expense: {
-    id: '',
+    id: uuid(),
     description,
     note,
     amount,
