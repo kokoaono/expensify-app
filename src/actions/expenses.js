@@ -1,4 +1,4 @@
-// import uuid from 'uuid';
+import uuid from 'uuid';
 
 //Add_Expense
 export const addExpense = (
@@ -11,7 +11,7 @@ export const addExpense = (
 ) => ({
   type: 'ADD_EXPENSE',
   expense: {
-    id: '',
+    id: uuid(),
     description,
     note,
     amount,
